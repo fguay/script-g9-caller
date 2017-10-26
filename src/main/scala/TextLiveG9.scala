@@ -41,7 +41,7 @@ class CompleteInfoG9  {
     val bddata = StdIn.readLine()
 
     val writer = new PrintWriter(new File(outputfilename))
-    writer.write("idEdito;idBroadcast;In Catalog Vod80;NbDoc Vod80;Interval Vod80;idKey VOD_80;SubOffer Vod80;NbDoc Broadcast;Channel Broadcast;ContentId BroadCast;Interval Broadcast;Suboffer Broadcast;Edito Terrapi;Identity Terrapi; Hour Tech; Size Queue Tech; Size Queue Broadcast; Size Queue Identity; Size Queue Edito;Status BackEnd;Status Queue;PLM Status\n")
+    writer.write("idEdito;idBroadcast;In Catalog Vod80;NbDoc Vod80;Interval Vod80;idKey VOD_80;SubOffer Vod80;NbDoc Broadcast;Channel Broadcast;ContentId BroadCast;Interval Broadcast;Suboffer Broadcast;Edito Terrapi;Identity Terrapi; Hour Tech; Size Queue Tech; Size Queue Broadcast; Size Queue Identity; Size Queue Edito;Status Queue;Status BackEnd;PLM Status\n")
 
 
     Source.fromFile(filename).getLines.toList.map(
