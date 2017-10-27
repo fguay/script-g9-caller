@@ -44,7 +44,7 @@ object WSClient {
   }
 
   def callHour(host:String, id:String): Future[(String, JsValue)] ={
-    call("GET", "http://"+host+"/timeline/content/"+id,
+    call("GET", "http://"+host+"/timeline/tech/"+id,
       None, None, ("Content-Type"->"application/json"))
   }
 
