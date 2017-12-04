@@ -76,7 +76,7 @@ class CallExportG9  {
   def transformEdito(jsArray: JsArray):Seq[String]= {
     jsArray.value.map{
       b => {
-        ((b \ "id").as[String] + ";" + (b \ "seasonId").getOrElse(JsString("")).as[String] + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+        ((b \ "id").as[String] + ";" + (b \ "seasonId").getOrElse(JsString("")).as[String] + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("NULL")).as[String] + "\n")
       }
     }
   }
