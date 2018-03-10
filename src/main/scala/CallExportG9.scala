@@ -1,7 +1,7 @@
 import java.io.{File, PrintWriter}
 
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsArray, JsString, Json}
+import play.api.libs.json.{JsArray, JsString, JsValue, Json}
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
@@ -49,33 +49,63 @@ class CallExportG9  {
 
 
   def transformSeason(jsArray: JsArray):Seq[String]= {
+    jsArray.value.collect{
+      case b if (b \ "channel" \ "id").asOpt[String].isDefined  => {
+        logSpecific(b, "SEASON")
+
+        ((b \ "id").as[String]  + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+      }
+    }
+
+    /*
     jsArray.value.map{
       b => {
         ((b \ "id").as[String]  + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
 
       }
     }
+    */
+  }
+
+  def logSpecific(js: JsValue, exportType: String) = {
+    val channelId = (js \ "channel" \ "id").as[String]
+
+    if(channelId == "312") {
+      println(s"$exportType - $js")
+    }
   }
 
   def transformBrand(jsArray: JsArray):Seq[String]= {
+
+    jsArray.value.collect{
+      case b if (b \ "channel" \ "id").asOpt[String].isDefined => {
+        logSpecific(b, "BRAND")
+        ((b \ "id").as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+      }
+    }
+
+    /*
     jsArray.value.map{
       b => {
         ((b \ "id").as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
       }
     }
+    */
   }
 
   def transformBraodcast(jsArray: JsArray):Seq[String]= {
-    jsArray.value.map{
-      b => {
+    jsArray.value.collect{
+      case b if (b \ "channel" \ "id").asOpt[String].isDefined  => {
+        logSpecific(b, "BROADCAST")
         ((b \ "id").as[String] + ";" + (b \ "editoId").as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
       }
     }
   }
 
   def transformEdito(jsArray: JsArray):Seq[String]= {
-    jsArray.value.map{
-      b => {
+    jsArray.value.collect{
+      case b if (b \ "channel" \ "id").asOpt[String].isDefined  => {
+        logSpecific(b, "EDITO")
         ((b \ "id").as[String] + ";" + (b \ "seasonId").getOrElse(JsString("")).as[String] + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("NULL")).as[String] + "\n")
       }
     }
@@ -85,7 +115,12 @@ class CallExportG9  {
     logger.info("call next URL : " + url + bg)
     WSClient.callExport(url + bg).flatMap{
         response => {
-          trans((response._2 \ "data").as[JsArray]).map{ data =>
+
+          val js = (response._2 \ "data").asOpt[JsArray].getOrElse{
+            throw new Exception(s"url: ${url + bg} ## response: ${response._2 }")
+          }
+
+          trans(js).map{ data =>
             writer.write(data)
           }
            (response._2 \ "paging" \ "next").toOption match {
