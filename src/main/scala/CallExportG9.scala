@@ -1,7 +1,7 @@
 import java.io.{File, PrintWriter}
 
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsArray, JsString, Json}
+import play.api.libs.json.{JsArray, JsString}
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
@@ -51,7 +51,7 @@ class CallExportG9  {
   def transformSeason(jsArray: JsArray):Seq[String]= {
     jsArray.value.map{
       b => {
-        ((b \ "id").as[String]  + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+        ((b \ "id").as[String]  + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("")).as[String] + "\n")
 
       }
     }
@@ -60,7 +60,7 @@ class CallExportG9  {
   def transformBrand(jsArray: JsArray):Seq[String]= {
     jsArray.value.map{
       b => {
-        ((b \ "id").as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+        ((b \ "id").as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("")).as[String] + "\n")
       }
     }
   }
@@ -68,7 +68,7 @@ class CallExportG9  {
   def transformBraodcast(jsArray: JsArray):Seq[String]= {
     jsArray.value.map{
       b => {
-        ((b \ "id").as[String] + ";" + (b \ "editoId").as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+        ((b \ "id").as[String] + ";" + (b \ "editoId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("")).as[String] + "\n")
       }
     }
   }
@@ -85,16 +85,23 @@ class CallExportG9  {
     logger.info("call next URL : " + url + bg)
     WSClient.callExport(url + bg).flatMap{
         response => {
-          trans((response._2 \ "data").as[JsArray]).map{ data =>
-            writer.write(data)
-          }
-           (response._2 \ "paging" \ "next").toOption match {
-            case Some(url) => recCallExport(url.as[String], bg, writer, trans);
-            case None => Future("Done")
-          }
+         response._1 match {
+           case "OK" => {
+             trans((response._2 \ "data").as[JsArray]).map{ data =>
+               writer.write(data)
+             }
+             (response._2 \ "paging" \ "next").toOption match {
+               case Some(url) => recCallExport(url.as[String], bg, writer, trans);
+               case None => Future("Done")
+             }
+           }
+           case _ =>  {
+             logger.error("response -> " + response._1 )
+             Future("Done")
+           }
+         }
         }
       }
-
   }
 
 
