@@ -1,11 +1,10 @@
 import java.io.{File, PrintWriter}
 
-import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsArray, JsString, JsValue, Json}
+import org.slf4j.{Logger, LoggerFactory}
+import play.api.libs.json.{JsArray, JsString, JsValue}
 
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration._
-import scala.io.{Source, StdIn}
+import scala.concurrent.Future
+import scala.io.StdIn
 
 
 object CallExportG9 extends App  {
@@ -15,7 +14,7 @@ object CallExportG9 extends App  {
 
 class CallExportG9  {
   import scala.concurrent.ExecutionContext.Implicits._
-  val logger = LoggerFactory.getLogger(classOf[CallExportG9])
+  val logger: Logger = LoggerFactory.getLogger(classOf[CallExportG9])
 
   def callExport(): Unit ={
 
@@ -25,7 +24,7 @@ class CallExportG9  {
     val writerEdito = new PrintWriter(new File("/tmp/edito.txt"))
     val writerBrand = new PrintWriter(new File("/tmp/brand.txt"))
     val writerSeason = new PrintWriter(new File("/tmp/season.txt"))
-    val writerCluster = new PrintWriter(new File("/tmp/cluster.txt"))
+    //val writerCluster = new PrintWriter(new File("/tmp/cluster.txt"))
 
     Console.println("Blue or grean [B/G]:")
     val bg = StdIn.readLine() match{ case "B" => "?bg=blue" case _ => "" }
@@ -53,7 +52,7 @@ class CallExportG9  {
       case b if (b \ "channel" \ "id").asOpt[String].isDefined  => {
         logSpecific(b, "SEASON")
 
-        ((b \ "id").as[String]  + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+        (b \ "id").as[String] + ";" + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n"
       }
     }
 
@@ -67,7 +66,7 @@ class CallExportG9  {
     */
   }
 
-  def logSpecific(js: JsValue, exportType: String) = {
+  def logSpecific(js: JsValue, exportType: String): Unit = {
     val channelId = (js \ "channel" \ "id").as[String]
 
     if(channelId == "312") {
@@ -80,7 +79,7 @@ class CallExportG9  {
     jsArray.value.collect{
       case b if (b \ "channel" \ "id").asOpt[String].isDefined => {
         logSpecific(b, "BRAND")
-        ((b \ "id").as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+        (b \ "id").as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n"
       }
     }
 
@@ -97,7 +96,7 @@ class CallExportG9  {
     jsArray.value.collect{
       case b if (b \ "channel" \ "id").asOpt[String].isDefined  => {
         logSpecific(b, "BROADCAST")
-        ((b \ "id").as[String] + ";" + (b \ "editoId").as[String] + ";" + (b \ "channel" \ "id").as[String] + "\n")
+        (b \ "id").as[String] + ";" + (b \ "editoId").as[String] + ";" + (b \ "channel" \ "id").as[String] + ";" + (b \ "availability" \ "startDate").as[String] + ";" + (b \ "availability" \ "endDate").as[String] + "\n"
       }
     }
   }
@@ -106,7 +105,7 @@ class CallExportG9  {
     jsArray.value.collect{
       case b if (b \ "channel" \ "id").asOpt[String].isDefined  => {
         logSpecific(b, "EDITO")
-        ((b \ "id").as[String] + ";" + (b \ "seasonId").getOrElse(JsString("")).as[String] + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("NULL")).as[String] + "\n")
+        (b \ "id").as[String] + ";" + (b \ "seasonId").getOrElse(JsString("")).as[String] + ";" + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("NULL")).as[String] + "\n"
       }
     }
   }
@@ -120,11 +119,11 @@ class CallExportG9  {
             throw new Exception(s"url: ${url + bg} ## response: ${response._2 }")
           }
 
-          trans(js).map{ data =>
+          trans(js).foreach{ data =>
             writer.write(data)
           }
            (response._2 \ "paging" \ "next").toOption match {
-            case Some(url) => recCallExport(url.as[String], bg, writer, trans);
+            case Some(nextUrl) => recCallExport(nextUrl.as[String], bg, writer, trans);
             case None => Future("Done")
           }
         }
