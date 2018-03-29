@@ -1,3 +1,5 @@
+import java.util.concurrent.TimeUnit
+
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
@@ -8,6 +10,7 @@ import play.api.libs.ws.JsonBodyReadables._
 import play.api.libs.ws.JsonBodyWritables._
 
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 import scala.util.parsing.json.JSONObject
 
 
@@ -69,8 +72,8 @@ object WSClient {
   def call(method:String, url:String, auth: Option[(String,String)], body:Option[JsObject], headers: (String, String)*) : Future[(String, JsValue)] = {
 
     val req = auth match {
-        case Some((login,pass))  => wsClient.url(url).withAuth(login, pass,WSAuthScheme.BASIC)
-        case _ => wsClient.url(url)
+        case Some((login,pass))  => wsClient.url(url).withAuth(login, pass,WSAuthScheme.BASIC).withRequestTimeout(Duration(100L, TimeUnit.SECONDS))
+        case _ => wsClient.url(url).withRequestTimeout(Duration(100L, TimeUnit.SECONDS))
     }
 
 
