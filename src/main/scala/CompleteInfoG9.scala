@@ -79,6 +79,7 @@ class CompleteInfoG9  {
           res => (res._1, res._2)
         }
 
+
         val res = Future.sequence(Seq(futureContent, futureES, futureDiff, futureEditoTerr, futureHour, futureIntTerr,futurQueueHourTech, futurQueueHourDiff, futurQueueIdentity, futurQueueEdito)).map{
           case Seq(hasContent, hasEs, hasDiff, hasEditoTerr, hasHour, hasIdentTerr, hasQueueTech, hasQueueDiff, hasQueueIdentity, hasQueueEdito) => {
             val nbRes = (hasEs._2 \ "hits" \ "total").getOrElse(JsNumber(0))

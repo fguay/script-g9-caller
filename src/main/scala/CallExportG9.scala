@@ -33,10 +33,10 @@ class CallExportG9  {
     logger.info("start pooling export...")
     val b = recCallExport("https://export.canal-plus.io/latest/gbox/broadcast", bg, writerBroadcast, transformBraodcast).map{_ => writerBroadcast.close()}
     var e = recCallExport("https://export.canal-plus.io/latest/gbox/edito/unit", bg, writerEdito, transformEdito).map{_ => writerEdito.close()}
-    var s = recCallExport("https://export.canal-plus.io/latest/gbox/edito/brand", bg, writerBrand, transformBrand).map{_ => writerBrand.close()}
-    var ss = recCallExport("https://export.canal-plus.io/latest/gbox/edito/season", bg, writerSeason, transformSeason).map{_ => writerSeason.close()}
+    //var s = recCallExport("https://export.canal-plus.io/latest/gbox/edito/brand", bg, writerBrand, transformBrand).map{_ => writerBrand.close()}
+    //var ss = recCallExport("https://export.canal-plus.io/latest/gbox/edito/season", bg, writerSeason, transformSeason).map{_ => writerSeason.close()}
 
-    val zipped = b.zip(e).zip(s).zip(ss)
+    val zipped = b.zip(e)//.zip(s).zip(ss)
     zipped.onFailure{
       case t => logger.error(t.getMessage,t)
     }
@@ -97,7 +97,7 @@ class CallExportG9  {
            }
            case _ =>  {
              logger.error("response -> " + response._1 )
-             Future("Done")
+             recCallExport(url, bg, writer, trans)
            }
          }
         }

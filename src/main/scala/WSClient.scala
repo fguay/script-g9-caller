@@ -1,3 +1,5 @@
+import java.util.concurrent.TimeUnit
+
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
@@ -8,6 +10,7 @@ import play.api.libs.ws.JsonBodyReadables._
 import play.api.libs.ws.JsonBodyWritables._
 
 import scala.concurrent.Future
+import scala.concurrent.duration.Duration
 import scala.util.parsing.json.JSONObject
 
 
@@ -22,6 +25,7 @@ object WSClient {
   import scala.concurrent.ExecutionContext.Implicits._
 
   val wsClient = StandaloneAhcWSClient()
+
 
   def callQueue(host:String, key:String): Future[(String,JsValue)] = {
     call("GET",s"http://$host/admin/redis/default/?showValue=true&keyPattern=$key", None, None, ("Content-Type"->"application/json"))
@@ -69,7 +73,7 @@ object WSClient {
   def call(method:String, url:String, auth: Option[(String,String)], body:Option[JsObject], headers: (String, String)*) : Future[(String, JsValue)] = {
 
     val req = auth match {
-        case Some((login,pass))  => wsClient.url(url).withAuth(login, pass,WSAuthScheme.BASIC)
+        case Some((login,pass))  => wsClient.url(url).withRequestTimeout(Duration(100, TimeUnit.SECONDS)).withAuth(login, pass,WSAuthScheme.BASIC)
         case _ => wsClient.url(url)
     }
 
