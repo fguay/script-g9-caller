@@ -73,7 +73,7 @@ object WSClient {
   def call(method:String, url:String, auth: Option[(String,String)], body:Option[JsObject], headers: (String, String)*) : Future[(String, JsValue)] = {
 
     val req = auth match {
-        case Some((login,pass))  => wsClient.url(url).withRequestTimeout(Duration(100, TimeUnit.SECONDS)).withAuth(login, pass,WSAuthScheme.BASIC)
+        case Some((login,pass))  => wsClient.url(url).withRequestTimeout(Duration(5, TimeUnit.SECONDS)).withAuth(login, pass,WSAuthScheme.BASIC)
         case _ => wsClient.url(url)
     }
 
