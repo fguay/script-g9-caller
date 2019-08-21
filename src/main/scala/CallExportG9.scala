@@ -1,7 +1,7 @@
 import java.io.{File, PrintWriter}
 
 import org.slf4j.LoggerFactory
-import play.api.libs.json.{JsArray, JsString}
+import play.api.libs.json.{JsArray, JsString, JsValue}
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
@@ -33,10 +33,10 @@ class CallExportG9  {
     logger.info("start pooling export...")
     val b = recCallExport("https://export.canal-plus.io/latest/gbox/broadcast", bg, writerBroadcast, transformBraodcast).map{_ => writerBroadcast.close()}
     var e = recCallExport("https://export.canal-plus.io/latest/gbox/edito/unit", bg, writerEdito, transformEdito).map{_ => writerEdito.close()}
-    //var s = recCallExport("https://export.canal-plus.io/latest/gbox/edito/brand", bg, writerBrand, transformBrand).map{_ => writerBrand.close()}
-    //var ss = recCallExport("https://export.canal-plus.io/latest/gbox/edito/season", bg, writerSeason, transformSeason).map{_ => writerSeason.close()}
+    var s = recCallExport("https://export.canal-plus.io/latest/gbox/edito/brand", bg, writerBrand, transformBrand).map{_ => writerBrand.close()}
+    var ss = recCallExport("https://export.canal-plus.io/latest/gbox/edito/season", bg, writerSeason, transformSeason).map{_ => writerSeason.close()}
 
-    val zipped = b.zip(e)//.zip(s).zip(ss)
+    val zipped = e.zip(b).zip(s).zip(ss)
     zipped.onFailure{
       case t => logger.error(t.getMessage,t)
     }
@@ -44,6 +44,14 @@ class CallExportG9  {
       _ => {
         WSClient.close()
       }
+    }
+  }
+
+  def logSpecific(js: JsValue, exportType: String): Unit = {
+    val channelId = (js \ "channel" \ "id").as[String]
+
+    if(channelId == "301") {
+      println(s"$exportType - $js")
     }
   }
 
@@ -68,7 +76,7 @@ class CallExportG9  {
   def transformBraodcast(jsArray: JsArray):Seq[String]= {
     jsArray.value.map{
       b => {
-        ((b \ "id").as[String] + ";" + (b \ "editoId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("")).as[String] + "\n")
+        ((b \ "id").as[String] + ";" + (b \ "editoId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("NOCHANNEL")).as[String] + ";" + (b \ "availability" \ "startDate").as[String] + ";" + (b \ "availability" \ "endDate").as[String]+ "\n")
       }
     }
   }
@@ -76,10 +84,12 @@ class CallExportG9  {
   def transformEdito(jsArray: JsArray):Seq[String]= {
     jsArray.value.map{
       b => {
-        ((b \ "id").as[String] + ";" + (b \ "seasonId").getOrElse(JsString("")).as[String] + ";"  + (b \ "brandId").getOrElse(JsString("")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("NULL")).as[String] + "\n")
+        ((b \ "id").as[String] + ";" + (b \ "seasonId").getOrElse(JsString("")).as[String] + ";"  + (b \ "brandId").getOrElse(JsString("NOCHANNEL")).as[String] + ";" + (b \ "channel" \ "id").getOrElse(JsString("NULL")).as[String] + "\n")
       }
     }
   }
+
+
 
   def recCallExport(url: String, bg: String, writer: PrintWriter, trans: JsArray => Seq[String]) : Future[String] = {
     logger.info("call next URL : " + url + bg)
