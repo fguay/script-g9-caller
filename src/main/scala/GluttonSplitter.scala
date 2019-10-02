@@ -119,9 +119,9 @@ class GluttonSplitter {
 
   // Génération de faux médias (id de workflow auto généré)
   def fakeMedia: Node = {
-    val media1 = addAttributeToNode(<transcoding><target>NCPLUS</target><profile>HLS_HD</profile></transcoding>, Attribute(None, "idKey", Text(randomUUID().toString), Null))
-    val media2 = addAttributeToNode(<transcoding><target>NCPLUS</target><profile>DASH_MKPC_HD</profile></transcoding>, Attribute(None, "idKey", Text(randomUUID().toString), Null))
-    val media3 = addAttributeToNode(<transcoding><target>NCPLUS</target><profile>HSS_HD</profile></transcoding>, Attribute(None, "idKey", Text(randomUUID().toString), Null))
+    val media1 = addAttributeToNode(<transcoding><target>NCP_WEB</target><profile>NCPLUS_HLS_HD</profile></transcoding>, Attribute(None, "idKey", Text(randomUUID().toString), Null))
+    val media2 = addAttributeToNode(<transcoding><target>NCP_WEB</target><profile>NCPLUS_DASH_MKPC_HD</profile></transcoding>, Attribute(None, "idKey", Text(randomUUID().toString), Null))
+    val media3 = addAttributeToNode(<transcoding><target>NCP_WEB</target><profile>NCPLUS_HSS_HD</profile></transcoding>, Attribute(None, "idKey", Text(randomUUID().toString), Null))
 
     <medias>
       <media type="video" provider="NCPLUS">
@@ -230,7 +230,7 @@ class GluttonSplitter {
 
 
   def writeNode(output:String, asset:Seq[Node]) = {
-    val assets = <assets providerName="canalplusvod" provider="ncplus" realm="ncplus" xsi:noNamespaceSchemaLocation="assets-v1.6.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{asset}</assets>
+    val assets = <assets providerName="CANALPLUSFULL" provider="ncplus" realm="ncplus" xsi:noNamespaceSchemaLocation="assets-v1.6.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{asset}</assets>
     XML.save(output , assets, "UTF-8", true, null)
 
   }
