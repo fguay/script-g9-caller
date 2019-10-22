@@ -16,7 +16,7 @@ case class EsCluster(val nodes:Seq[EsNode], val indices:Seq[String], route:Seq[E
 case class EsNode(val id:String, val url:String)
 case class EsIndex(val id:String)
 case class EsRoute(val indexId:String, val nodesId:Seq[String])
-case class EsIndexStats(val indexId:String, val count:Long, val deleted:Long, val search:Long, val indexing:Long, val get:Long)
+case class EsIndexStats(val indexId:String, val count:Long, val deleted:Long, val search:Long, val indexing:Long, val get:Long, val scroll:Long)
 
 class ElasticSearchStats  {
 
@@ -43,14 +43,14 @@ class ElasticSearchStats  {
     val clusterStats = maybeStats.map{ tpl =>  parseClusterStats(tpl) }
 
     val writer = new PrintWriter(new File(outputfilename))
-    writer.write(s"Index;NbDoc;NbDelete;NbSearch;NbGet;NbIndex;NbShard;Nodes\n")
+    writer.write(s"Index;NbDoc;NbDelete;NbSearch;NbGet;NbIndex;Scroll;NbShard;Nodes\n")
 
     val writing = cluster.zip(clusterStats).map{
       case (clusterData, seqIndexStats) => {
         seqIndexStats.foreach{ idx =>
           val nodesUrl = getNodesUrl(idx.indexId, clusterData)
-          logger.info(s"${idx.indexId};${idx.count};${idx.deleted};${idx.search};${idx.get};${idx.indexing};${nodesUrl.size};${nodesUrl.mkString(",")}")
-          writer.write(s"${idx.indexId};${idx.count};${idx.deleted};${idx.search};${idx.get};${idx.indexing};${nodesUrl.size};${nodesUrl.mkString(",")}\n")
+          logger.info(s"${idx.indexId};${idx.count};${idx.deleted};${idx.search};${idx.get};${idx.indexing};${idx.scroll};${nodesUrl.size};${nodesUrl.mkString(",")}")
+          writer.write(s"${idx.indexId};${idx.count};${idx.deleted};${idx.search};${idx.get};${idx.indexing};${idx.scroll};${nodesUrl.size};${nodesUrl.mkString(",")}\n")
         }
       }
     }
@@ -114,7 +114,8 @@ class ElasticSearchStats  {
       val search = (indices \ idx \ "total" \ "search" \ "query_total").getOrElse(JsNumber(0)).as[JsNumber].value.toLong
       val index = (indices \ idx \ "total" \ "indexing" \ "index_total").getOrElse(JsNumber(0)).as[JsNumber].value.toLong
       val get = (indices \ idx \ "total" \ "get" \ "total").getOrElse(JsNumber(0)).as[JsNumber].value.toLong
-      EsIndexStats(idx, count, deleted, search, index, get)
+      val scroll = (indices \ idx \ "total" \ "search" \ "scroll_current").getOrElse(JsNumber(0)).as[JsNumber].value.toLong
+      EsIndexStats(idx, count, deleted, search, index, get, scroll)
     }.toSeq
 
     ret.size
