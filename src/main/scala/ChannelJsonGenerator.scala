@@ -3,7 +3,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 import LocalCode.{LocalCode, Localized}
-import RegionCode.Regionalized
+import RegionCode.{RegionCode, Regionalized}
 import org.slf4j.LoggerFactory
 import play.api.libs.json.{JsArray, Json, OFormat}
 
@@ -124,11 +124,11 @@ class ChannelJsonGenerator {
 
   def run(): Unit = {
     println("CSV Edito File : " )
-    val editoFile = "/Users/fguay/Downloads/csv_unify_channel.csv" //StdIn.readLine()
+    val editoFile = "/Users/fguay/Downloads/csv_unify_tvpack.csv" //StdIn.readLine()
     println("CSV Tech File : " )
-    val techFile = "/Users/fguay/Downloads/csv_hour_channel.csv" //StdIn.readLine()
+    val techFile = "/Users/fguay/Downloads/csv_hour_tvpack.csv" //StdIn.readLine()
     println("Output json Directory : " )
-    val output = "/Users/fguay/Downloads/json" //StdIn.readLine()
+    val output = "/Users/fguay/Downloads/json/tvpack" //StdIn.readLine()
     //Console.println("Unify URL :")
     //val unifyUrl = StdIn.readLine()
 
@@ -175,7 +175,7 @@ class ChannelJsonGenerator {
               edito.baseLine,
               edito.subscriptionReason
             )),
-          Map[LocalCode,UnifyChannelRegionalization]( LocalCode.pl ->
+          Map[RegionCode,UnifyChannelRegionalization]( RegionCode.pl ->
             UnifyChannelRegionalization(
               Seq[UnifyParentalRating](
                 UnifyParentalRating(
@@ -212,10 +212,6 @@ class ChannelJsonGenerator {
         writer.close()
       }
     }
-
-
-
-
   }
 
 
