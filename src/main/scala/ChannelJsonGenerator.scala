@@ -125,13 +125,11 @@ class ChannelJsonGenerator {
 
   def run(): Unit = {
     println("CSV Edito File : " )
-    val editoFile = "/Users/fguay/Downloads/csv_unify_tvpack.csv" //StdIn.readLine()
+    val editoFile = StdIn.readLine() //"/Users/fguay/Downloads/csv_unify_channel.csv" //StdIn.readLine()
     println("CSV Tech File : " )
-    val techFile = "/Users/fguay/Downloads/csv_hour_tvpack.csv" //StdIn.readLine()
+    val techFile = StdIn.readLine() "/Users/fguay/Downloads/csv_hour_channel.csv"
     println("Output json Directory : " )
-    val output = "/Users/fguay/Downloads/json/tvpack" //StdIn.readLine()
-    //Console.println("Unify URL :")
-    //val unifyUrl = StdIn.readLine()
+    val output = StdIn.readLine() //"/Users/fguay/Downloads/json/channels"
 
     val editoChannels = Source.fromFile(editoFile).getLines.toList.map{
         line => {
