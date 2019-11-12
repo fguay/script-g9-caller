@@ -168,7 +168,9 @@ class ChannelJsonGenerator {
               tech.tvPackid
             ),
             Seq[UnifyTagRef](),
-            Seq[UnifyPicture]()),
+            Seq[UnifyPicture](),
+            true
+          ),
           Map[LocalCode, UnifyChannelLocalization]( LocalCode.pl ->
             UnifyChannelLocalization(
               edito.name,
@@ -182,7 +184,7 @@ class ChannelJsonGenerator {
                 UnifyParentalRating(
                   edito.parentalRatingauthority,
                   edito.parentalRatingvalue)),
-              true
+              1
             ))
         )
         val hour = ChannelTechResource(
