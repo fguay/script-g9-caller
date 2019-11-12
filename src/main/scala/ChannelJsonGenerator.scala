@@ -80,7 +80,7 @@ case class UnifyParentalRating(authority: String, value: String)
 
 case class UnifyChannelLocalization(name: String, shortName: String, baseline: String, subscriptionReason: String)
 
-case class UnifyChannelRegionalization(parentalRatings: Seq[UnifyParentalRating], searchable: Boolean)
+case class UnifyChannelRegionalization(parentalRatings: Seq[UnifyParentalRating], morality: Int)
 
 case class UnifyChannelTheme(id: String, name: String)
 
@@ -99,7 +99,8 @@ case class UnifyChannelGlobal(quality: String,
                               updateDate: ZonedDateTime,
                               tvPack: UnifyChannelTvPack,
                               tags: Seq[UnifyTagRef],
-                              pictures: Seq[UnifyPicture])
+                              pictures: Seq[UnifyPicture],
+                              searchable: Boolean)
 
 
 
