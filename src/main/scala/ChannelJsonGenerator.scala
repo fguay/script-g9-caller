@@ -127,7 +127,7 @@ class ChannelJsonGenerator {
     println("CSV Edito File : " )
     val editoFile = StdIn.readLine() //"/Users/fguay/Downloads/csv_unify_channel.csv" //StdIn.readLine()
     println("CSV Tech File : " )
-    val techFile = StdIn.readLine() "/Users/fguay/Downloads/csv_hour_channel.csv"
+    val techFile = StdIn.readLine() //"/Users/fguay/Downloads/csv_hour_channel.csv"
     println("Output json Directory : " )
     val output = StdIn.readLine() //"/Users/fguay/Downloads/json/channels"
 
