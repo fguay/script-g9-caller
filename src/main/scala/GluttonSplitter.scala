@@ -34,12 +34,12 @@ class GluttonSplitter {
   def split(): Unit ={
 
     Console.println("From directory :")
-   // val inputPath = StdIn.readLine();
-    val inputPath = "/Users/fguay/Downloads/glutton"
+    val inputPath = StdIn.readLine();
+    //val inputPath = "/Users/fguay/Downloads/glutton"
 
     Console.println("Output directory :")
-    //val outputPath = StdIn.readLine();
-    val outputPath = "/Users/fguay/Downloads/split"
+    val outputPath = StdIn.readLine();
+    //val outputPath = "/Users/fguay/Downloads/split"
 
     val outputChild = new File(outputPath + "/unit")
     if(!outputChild.exists()){
