@@ -1,7 +1,7 @@
 
 import java.io.File
 import java.text.SimpleDateFormat
-import java.util.{Calendar, Date}
+import java.util.{Calendar, Date, NoSuchElementException}
 
 import play.api.libs.ws.DefaultBodyReadables._
 import play.api.libs.ws.DefaultBodyWritables._
@@ -39,7 +39,7 @@ class GluttonSplitter {
 
     Console.println("Output directory :")
     val outputPath = StdIn.readLine();
-    //val outputPath = "/Users/fguay/Downloads/split"
+    //val outputPath = "/Users/fguay/Downloads/split4"
 
     val outputChild = new File(outputPath + "/unit")
     if(!outputChild.exists()){
@@ -71,6 +71,7 @@ class GluttonSplitter {
       logger.info(s"Read file : $filename")
       val xmlFile = XML.load(filename)
       // Filtrage des unit, car on groupera les brands et seasons associées dans le meme fichier.
+
       val provider = getProvider(xmlFile)
       val assetsNodes = (xmlFile \ "asset")
       assetsNodes.foreach{
@@ -94,27 +95,31 @@ class GluttonSplitter {
       val provider = getProvider(xmlFile)
       val assetNode = (xmlFile \ "asset").head
       val idKey = getAssetIdKey(assetNode)
-
-      val parentsNode = takeParentFromFile(outputPath, assetNode)
-      parentsNode match {
-        case Some(nodes) => writeNode(s"$outputDir/$idKey.xml", provider, (assetNode :+ nodes).flatten)
-        case None => writeNode(s"$outputPath/error/$idKey.xml",provider, assetNode)
+      try {
+        val parentsNode = takeParentFromFile(outputPath, assetNode)
+        parentsNode match {
+          case Some(nodes) => writeNode(s"$outputDir/$idKey.xml", provider, (assetNode :+ nodes).flatten)
+          case None => writeNode(s"$outputPath/error/$idKey.xml", provider, assetNode)
+        }
+      } catch {
+        case e:NoSuchElementException => {
+          logger.error(e.getMessage)
+          writeNode(s"$outputPath/error/$idKey.xml", provider, assetNode)
+        }
       }
     }
 
     val fileSeason = outputSeason.listFiles().filter(_.isFile)
     fileSeason.foreach{
-      filename => mergeParent(filename.getAbsolutePath, s"$outputPath/season")
+      filename => {
+        mergeParent(filename.getAbsolutePath, s"$outputPath/season")
+      }
     }
 
     val fileChildren = outputChild.listFiles.filter(_.isFile)
     fileChildren.foreach{
       filename => mergeParent(filename.getAbsolutePath, s"$outputPath")
     }
-
-
-
-
 
   }
 
@@ -150,8 +155,14 @@ class GluttonSplitter {
     }  else {
       val maybeParentsNode = mayBeParents.map( m => {(m.attribute("idKey").get.head.text, m.attribute("objectType").get.head.text)}).map {
         t => {
-          val parentf = XML.loadFile(s"$output/${t._2}/${t._1}.xml")
-          (parentf \ "asset").toSeq
+          val seasonFile = new File(s"$output/${t._2}/${t._1}.xml")
+          if(seasonFile.exists()) {
+            val parentf = XML.loadFile(s"$output/${t._2}/${t._1}.xml")
+            (parentf \ "asset").toSeq
+          } else {
+            //logger.error(s"Parent type : ${t._2} with id ${t._1} not exist !!! ")
+            throw new NoSuchElementException(s"Parent type : ${t._2} with id ${t._1} not exist !!! ")
+          }
         }
       }
       Some(maybeParentsNode.flatten)
