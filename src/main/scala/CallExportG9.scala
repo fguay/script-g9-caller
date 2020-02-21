@@ -31,10 +31,10 @@ class CallExportG9  {
     val bg = StdIn.readLine() match{ case "B" => "?bg=blue" case _ => "" }
 
     logger.info("start pooling export...")
-    val b = recCallExport("https://export.canal-plus.io/latest/gbox/broadcast", bg, writerBroadcast, transformBraodcast).map{_ => writerBroadcast.close()}
-    var e = recCallExport("https://export.canal-plus.io/latest/gbox/edito/unit", bg, writerEdito, transformEdito).map{_ => writerEdito.close()}
-    var s = recCallExport("https://export.canal-plus.io/latest/gbox/edito/brand", bg, writerBrand, transformBrand).map{_ => writerBrand.close()}
-    var ss = recCallExport("https://export.canal-plus.io/latest/gbox/edito/season", bg, writerSeason, transformSeason).map{_ => writerSeason.close()}
+    val b = recCallExport("https://export.canal-plus.io/gbox/broadcast", bg, writerBroadcast, transformBraodcast).map{_ => writerBroadcast.close()}
+    var e = recCallExport("https://export.canal-plus.io/gbox/edito/unit", bg, writerEdito, transformEdito).map{_ => writerEdito.close()}
+    var s = recCallExport("https://export.canal-plus.io/gbox/edito/brand", bg, writerBrand, transformBrand).map{_ => writerBrand.close()}
+    var ss = recCallExport("https://export.canal-plus.io/gbox/edito/season", bg, writerSeason, transformSeason).map{_ => writerSeason.close()}
 
     val zipped = e.zip(b).zip(s).zip(ss)
     zipped.onFailure{
